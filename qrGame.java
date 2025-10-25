@@ -12,7 +12,7 @@ public class qrGame extends Game{
    private int N;
 
 
-     public qrGame(Board boardPlayer, qrWallBoard boardWalls){
+   public qrGame(Board boardPlayer, qrWallBoard boardWalls){
       
       super(boardPlayer);
         this.boardPlayer = boardPlayer;
@@ -22,7 +22,7 @@ public class qrGame extends Game{
 
      }
 
-     public static final class Cell {
+   public static final class Cell {
       public final int r, c;
       public Cell(int r, int c) { 
          this.r = r; 
@@ -31,7 +31,7 @@ public class qrGame extends Game{
       }
 
 
-     private static final int[][] DIRS = {
+    private static final int[][] DIRS = {
          {-1, 0},
          { 0, 1},
          { 1, 0},
@@ -39,33 +39,33 @@ public class qrGame extends Game{
       };
 
 
-      private boolean inBounds(int r, int c) {
+   private boolean inBounds(int r, int c) {
          return 0 <= r && r < N && 0 <= c && c < N;
       }
-      private boolean isOccupied(int r, int c, qrPlayerPiece a, qrPlayerPiece b) {
+   private boolean isOccupied(int r, int c, qrPlayerPiece a, qrPlayerPiece b) {
          return (a.row() == r && a.col() == c) || (b.row() == r && b.col() == c);
       }
-      private boolean isOpponentAt(int r, int c, qrPlayerPiece me, qrPlayerPiece opp) {
+   private boolean isOpponentAt(int r, int c, qrPlayerPiece me, qrPlayerPiece opp) {
          return (opp.row() == r && opp.col() == c);
       }
 
-      private boolean openNorth(int r, int c) {
+   private boolean openNorth(int r, int c) {
          if (r - 1 < 0) return false;
          return !getWallBoard().has(r - 1, c, qrWallPiece.Orientation.H);
       }
-      private boolean openSouth(int r, int c) {
+   private boolean openSouth(int r, int c) {
          if (r + 1 >= N) return false;
          return !getWallBoard().has(r, c, qrWallPiece.Orientation.H);
       }
-      private boolean openWest(int r, int c) {
+   private boolean openWest(int r, int c) {
          if (c - 1 < 0) return false;
          return !getWallBoard().has(r, c - 1, qrWallPiece.Orientation.V);
       }
-      private boolean openEast(int r, int c) {
+   private boolean openEast(int r, int c) {
          if (c + 1 >= N) return false;
          return !getWallBoard().has(r, c, qrWallPiece.Orientation.V);
       }
-      private boolean edgeOpen(int r, int c, int dir) {
+   private boolean edgeOpen(int r, int c, int dir) {
          switch (dir) {
             case 0: return openNorth(r, c);
             case 1: return openEast(r, c);
@@ -74,7 +74,7 @@ public class qrGame extends Game{
          }
       }
 
-      public java.util.List<Cell> legalPawnMoves(qrPlayerPiece me, qrPlayerPiece opp) {
+   public java.util.List<Cell> legalPawnMoves(qrPlayerPiece me, qrPlayerPiece opp) {
          java.util.ArrayList<Cell> out = new java.util.ArrayList<Cell>(8);
          int r = me.row(), c = me.col();
 
@@ -118,34 +118,40 @@ public class qrGame extends Game{
       }
 
 
-     public boolean movePawn(qrPlayerPiece me, qrPlayerPiece opp, int r, int c) {
-    // 1) generate legal destinations from current state
-    java.util.List<Cell> legal = legalPawnMoves(me, opp);
+   public boolean movePawn(qrPlayerPiece me, qrPlayerPiece opp, int r, int c) {
 
-    boolean ok = false;
-    for (Cell dst : legal) {
-        if (dst.r == r && dst.c == c) { ok = true; break; }
-    }
-    if (!ok) return false; // not a legal move
+         // Makes a list of legal moves
+         java.util.List<Cell> legal = legalPawnMoves(me, opp);
 
-    // 2) update board + piece
-    // clear old position
-    getPlayerBoard().setPiece(me.row(), me.col(), null);
+         //Checks if a move is legal
+         boolean ok = false;
+         for (Cell dst : legal) {
+            if (dst.r == r && dst.c == c) {
+               ok = true; break;
+               }
+         }
+         // If not then we can't move
+         if (!ok) {
+            return false; 
+         }
+         // Makes the move
+         getPlayerBoard().setPiece(me.row(), me.col(), null);
+         getPlayerBoard().setPiece(r, c, me);
+         me.moveTo(r, c);
 
-    // set new position
-    getPlayerBoard().setPiece(r, c, me);
-
-    // sync the piece
-    me.moveTo(r, c);
-
-    return true;
+         return true;
 }
 
-     public boolean placeWall(int r, int c, qrWallPiece.Orientation o,
-                         qrPlayerPiece p1, qrPlayerPiece p2,
-                         qrPlayerPiece currentPlayer) {
-         if (currentPlayer.wallsLeft() <= 0) return false;
-         if (!boardWalls.canPlace(r, c, o))  return false;
+
+// Makes sure we can place the wall and places. 
+     public boolean placeWall(int r, int c, qrWallPiece.Orientation o,qrPlayerPiece p1, qrPlayerPiece p2,qrPlayerPiece currentPlayer) {
+         
+      if (currentPlayer.wallsLeft() <= 0) {
+            return false;
+         }
+         if (!boardWalls.canPlace(r, c, o)){
+            return false;
+         }
 
 
          boardWalls.place(r, c, o);
@@ -162,6 +168,7 @@ public class qrGame extends Game{
          return true;
       }
 
+      // Getters
 
       public Board getPlayerBoard() { 
          return boardPlayer; 
@@ -170,28 +177,36 @@ public class qrGame extends Game{
          return boardWalls; 
       }
 
-
+   // Run BFS to make sure placing a wall won't block a player from reaching the end.
    private boolean bfsHasPathToGoal(qrPlayerPiece p) {
-    int n = N;
-    boolean[][] vis = new boolean[n][n];
-    java.util.ArrayDeque<int[]> q = new java.util.ArrayDeque<int[]>();
+      int n = N;
+      boolean[][] vis = new boolean[n][n];
+      java.util.ArrayDeque<int[]> q = new java.util.ArrayDeque<int[]>();
 
-    q.add(new int[]{p.row(), p.col()});
-    vis[p.row()][p.col()] = true;
+      q.add(new int[]{p.row(), p.col()});
+      vis[p.row()][p.col()] = true;
 
-    while (!q.isEmpty()) {
-        int[] cur = q.removeFirst();
-        int r = cur[0], c = cur[1];
+      while (!q.isEmpty()) {
+         int[] cur = q.removeFirst();
+         int r = cur[0], c = cur[1];
 
-        // reached any cell in goal row?
-        if (r == p.goalRow()) return true;
 
-        // explore neighbors if edge is open
-        if (openNorth(r,c) && !vis[r-1][c]) { vis[r-1][c] = true; q.add(new int[]{r-1,c}); }
-        if (openEast(r,c)  && !vis[r][c+1]) { vis[r][c+1] = true; q.add(new int[]{r,c+1}); }
-        if (openSouth(r,c) && !vis[r+1][c]) { vis[r+1][c] = true; q.add(new int[]{r+1,c}); }
-        if (openWest(r,c)  && !vis[r][c-1]) { vis[r][c-1] = true; q.add(new int[]{r,c-1}); }
-    }
-    return false;
-}
+         if (r == p.goalRow()) return true;
+
+
+         if (openNorth(r,c) && !vis[r-1][c]) { 
+            vis[r-1][c] = true; q.add(new int[]{r-1,c});
+         }
+         if (openEast(r,c)  && !vis[r][c+1]) { 
+            vis[r][c+1] = true; q.add(new int[]{r,c+1}); 
+         }
+         if (openSouth(r,c) && !vis[r+1][c]) { 
+            vis[r+1][c] = true; q.add(new int[]{r+1,c}); 
+         }
+         if (openWest(r,c)  && !vis[r][c-1]) { 
+            vis[r][c-1] = true; q.add(new int[]{r,c-1}); 
+         }
+      }
+      return false;
+   }
    }

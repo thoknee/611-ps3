@@ -56,16 +56,9 @@ public class qrPlayerPiece implements Piece{
         return row == goalRow;
     }
 
-    public String toString() {
-        return player + "@" + "(" + row + "," + col + ")"
-               + " wallsLeft=" + wallsLeft;
-    }
-
     public boolean isBlank(){
         return true;
     }
-
-
 
 
 

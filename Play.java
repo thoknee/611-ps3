@@ -29,6 +29,7 @@ public class Play {
 
             RunGame runSlide = new RunSliding();
             RunDotsAndBoxes rundb = new RunDotsAndBoxes();
+            runqr runqr = new runqr();
 
             switch (cfg.getGameType()) {
                 case SLIDING:
@@ -38,6 +39,7 @@ public class Play {
                     rundb.runGame(cfg, p);
                     break;
                 case QUORIDOR:
+                    runqr.runGame(cfg, p);
                     break;
             }
 

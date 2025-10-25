@@ -9,8 +9,16 @@
 public class qrWallPiece implements Piece{
     
     
-    public qrWallPiece() {
-
+    
+    public enum Orientation { H, V }
+   
+    private final Orientation orientation;
+    
+    public qrWallPiece(Orientation o){ 
+        this.orientation = o; 
+    }
+    public Orientation orientation() { 
+        return orientation;
     }
 
 

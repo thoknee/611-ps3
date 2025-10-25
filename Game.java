@@ -10,7 +10,8 @@
 public abstract class Game {
     public Board board;
 
-
+    protected Game() {}
+    
     public Game(Board board){
         this.board = board;
     }

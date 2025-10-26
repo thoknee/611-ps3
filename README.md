@@ -21,6 +21,8 @@ The project builds on the same grid framework from Assignment 2 but introduces n
 - Dynamic pathfinding checks (ensuring both players always have a route to their goals)
 All game logic, rendering, and user interaction are handled through the console.
 
+Quoridor is a bit more indepth 2 player game. Each player is put on one end of a 9x9 board and are tasked with getting to the other side. Each player can have either move one square or place a wall to block the opponent. The first person to the other end wins. A game with various strategies, it a lot of fun and has a ton of nuance to it.
+
 To use this game engine it is quite simple. Open a terminal and navigate to the directory in which the files exist. From there, you need to compile the Main.java as so:
 
 ```javac Main.java```

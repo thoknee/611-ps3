@@ -49,22 +49,28 @@ public class qrGame extends Game{
          return (opp.row() == r && opp.col() == c);
       }
 
+   // FIX: changed the four functions below, need to check both possible wall anchors that could block a given move, not just one
    private boolean openNorth(int r, int c) {
          if (r - 1 < 0) return false;
-         return !getWallBoard().has(r - 1, c, qrWallPiece.Orientation.H);
-      }
+         // a horizontal wall anchored at (r-1,c) or (r-1,c-1) blocks between r-1 and r
+         return !(getWallBoard().has(r - 1, c, qrWallPiece.Orientation.H) || getWallBoard().has(r - 1, c - 1, qrWallPiece.Orientation.H));
+   }
    private boolean openSouth(int r, int c) {
          if (r + 1 >= N) return false;
-         return !getWallBoard().has(r, c, qrWallPiece.Orientation.H);
-      }
+         // a horizontal wall anchored at (r,c) or (r,c-1) blocks between r and r+1
+         return !(getWallBoard().has(r, c, qrWallPiece.Orientation.H) || getWallBoard().has(r, c - 1, qrWallPiece.Orientation.H));
+   }
    private boolean openWest(int r, int c) {
          if (c - 1 < 0) return false;
-         return !getWallBoard().has(r, c - 1, qrWallPiece.Orientation.V);
-      }
+         // a vertical wall anchored at (r,c-1) or (r-1,c-1) blocks between c-1 and c
+         return !(getWallBoard().has(r, c - 1, qrWallPiece.Orientation.V) || getWallBoard().has(r - 1, c - 1, qrWallPiece.Orientation.V));
+   }   
    private boolean openEast(int r, int c) {
          if (c + 1 >= N) return false;
-         return !getWallBoard().has(r, c, qrWallPiece.Orientation.V);
-      }
+         // a vertical wall anchored at (r,c) or (r - 1,c) blocks between c and c+1
+         return !(getWallBoard().has(r, c, qrWallPiece.Orientation.V) || getWallBoard().has(r - 1, c, qrWallPiece.Orientation.V));
+   }
+
    private boolean edgeOpen(int r, int c, int dir) {
          switch (dir) {
             case 0: return openNorth(r, c);
@@ -99,15 +105,17 @@ public class qrGame extends Game{
                      int right = (dir + 1) % 4;
 
                     
+                     // FIX: after jumping,must recheck the intermediate squares are not blocked by walls
+                     // without fix, if there's a wall next to the opponent, A might jump even when all sides are walled
                      if (edgeOpen(nr, nc, left)) {
                         int dlr = nr + DIRS[left][0], dlc = nc + DIRS[left][1];
-                        if (inBounds(dlr, dlc) && !isOccupied(dlr, dlc, me, opp)) {
+                        if (inBounds(dlr, dlc) && !isOccupied(dlr, dlc, me, opp) && edgeOpen(nr, nc, left)) {
                               out.add(new Cell(dlr, dlc));
                         }
                      }
                      if (edgeOpen(nr, nc, right)) {
                         int drr = nr + DIRS[right][0], drc = nc + DIRS[right][1];
-                        if (inBounds(drr, drc) && !isOccupied(drr, drc, me, opp)) {
+                        if (inBounds(drr, drc) && !isOccupied(drr, drc, me, opp) && edgeOpen(nr, nc, right)) {
                               out.add(new Cell(drr, drc));
                         }
                      }
@@ -156,7 +164,7 @@ public class qrGame extends Game{
 
          boardWalls.place(r, c, o);
 
-          boolean ok = bfsHasPathToGoal(p1) && bfsHasPathToGoal(p2);
+         boolean ok = bfsHasPathToGoal(p1) && bfsHasPathToGoal(p2);
 
          if (!ok) {
                boardWalls.remove(r, c);
@@ -190,20 +198,20 @@ public class qrGame extends Game{
          int[] cur = q.removeFirst();
          int r = cur[0], c = cur[1];
 
-
+         // target side reached
          if (r == p.goalRow()) return true;
 
-
-         if (openNorth(r,c) && !vis[r-1][c]) { 
+         // FIX: explore neighbors only if they are open (added r > 0, r < n - 1, c > 0, c < n - 1)
+         if (openNorth(r,c) && r > 0 && !vis[r-1][c]) { 
             vis[r-1][c] = true; q.add(new int[]{r-1,c});
          }
-         if (openEast(r,c)  && !vis[r][c+1]) { 
+         if (openEast(r,c)  && c < n - 1 && !vis[r][c+1]) { 
             vis[r][c+1] = true; q.add(new int[]{r,c+1}); 
          }
-         if (openSouth(r,c) && !vis[r+1][c]) { 
+         if (openSouth(r,c) && r < n - 1 && !vis[r+1][c]) { 
             vis[r+1][c] = true; q.add(new int[]{r+1,c}); 
          }
-         if (openWest(r,c)  && !vis[r][c-1]) { 
+         if (openWest(r,c)  && c > 0 && !vis[r][c-1]) { 
             vis[r][c-1] = true; q.add(new int[]{r,c-1}); 
          }
       }

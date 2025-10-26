@@ -97,11 +97,32 @@ public class runqr implements RunGame{
                 int o = in.intInRange("Choose orientation: ", 0, 2);
                 if (o == 0) {
                 } else {
-                    qrWallPiece.Orientation orient = (o == 1) ? qrWallPiece.Orientation.H
-                                                             : qrWallPiece.Orientation.V;
-                    int maxAnchor = N - 1; 
-                    int r = in.intInRange("Anchor row (0.." + (maxAnchor-1) + "): ", 0, maxAnchor-1);
-                    int c = in.intInRange("Anchor col (0.." + (maxAnchor-1) + "): ", 0, maxAnchor-1);
+                    // qrWallPiece.Orientation orient = (o == 1) ? qrWallPiece.Orientation.H
+                    //                                          : qrWallPiece.Orientation.V;
+                    // int maxAnchor = N - 1; 
+                    // int r = in.intInRange("Anchor row (0.." + (maxAnchor-1) + "): ", 0, maxAnchor-1);
+                    // int c = in.intInRange("Anchor col (0.." + (maxAnchor-1) + "): ", 0, maxAnchor-1);
+                    
+                    // CHANGE: reflect the actual valid anchors for the chosen wall type
+                    qrWallPiece.Orientation orient =
+                        (o == 1) ? qrWallPiece.Orientation.H : qrWallPiece.Orientation.V;
+
+                    // for a 9×9 pawn grid -> wall anchors are 8×8 (0..7)
+                    // but wall spans two anchors, so upper bound depends on orientation
+                    int maxRow = (orient == qrWallPiece.Orientation.H) ? (N - 1) : (N - 2);
+                    int maxCol = (orient == qrWallPiece.Orientation.H) ? (N - 2) : (N - 1);
+
+                    // adjust column/row range by orientation (H walls can’t start at rightmost anchor, V walls can’t start at bottom anchor)
+                    if (orient == qrWallPiece.Orientation.H) {
+                        maxCol = N - 2;   // needs c and c+1
+                        maxRow = N - 1;   // horizontal wall uses one anchor row
+                    } else {
+                        maxRow = N - 2;   // needs r and r+1
+                        maxCol = N - 1;   // vertical wall uses one anchor column
+                    }
+
+                    int r = in.intInRange("Anchor row (0.." + (maxRow - 1) + "): ", 0, maxRow - 1);
+                    int c = in.intInRange("Anchor col (0.." + (maxCol - 1) + "): ", 0, maxCol - 1);
 
                     boolean ok = game.placeWall(r, c, orient, p1Pawn, p2Pawn, me);
                     if (!ok) {

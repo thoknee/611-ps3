@@ -4,13 +4,16 @@ Teammates: Antony Ponomarev and Olivia Ma
 
 This is a terminal based simple game engine made completely in java. The high level idea is to create a game engine that is easily extendable to add other games - especially those based on a grid system like the two games currently implemented.
 
-Currently, this game engine has 2 games.
+Currently, this game engine has 3 games.
 - Sliding puzzle
 - Dots and boxes
+- Quoridor
 
 Sliding puzzle is an old school puzzle you have probably played at least once in your life. It is a one player game where the objective is to fix the numbers in chronological order being able to move them one at a time through an empty space.
 
 Dots and boxes is a 2 player game where you face off against an opponent. The game starts with an array of dots of which every turn you can connect with a line. Upon completing an entire box with 4 lines you get 1 point and the player with more points wins.
+
+Quoridor is a bit more indepth 2 player game. Each player is put on one end of a 9x9 board and are tasked with getting to the other side. Each player can have either move one square or place a wall to block the opponent. The first person to the other end wins. A game with various strategies, it a lot of fun and has a ton of nuance to it.
 
 To use this game engine it is quite simple. Open a terminal and navigate to the directory in which the files exist. From there, you need to compile the Main.java as so:
 

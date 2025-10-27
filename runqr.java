@@ -26,15 +26,16 @@ public class runqr implements RunGame{
         int wallsPerPlayer = 10;
         int mid = N / 2;
 
-        qrPlayerPiece p1Pawn = new qrPlayerPiece(qrPlayerPiece.Player.P1, 0,     mid, N-1, wallsPerPlayer);
-        qrPlayerPiece p2Pawn = new qrPlayerPiece(qrPlayerPiece.Player.P2, N-1,   mid, 0,   wallsPerPlayer);
+        qrPlayerPiece p1Pawn = new qrPlayerPiece(cfg.getPlayer(0), 0,     mid, N-1, wallsPerPlayer);
+        qrPlayerPiece p2Pawn = new qrPlayerPiece(cfg.getPlayer(1), N-1,   mid, 0,   wallsPerPlayer);
 
         // Place pawns on the cell board
         cellBoard.setPiece(0,   mid, p1Pawn);
         cellBoard.setPiece(N-1, mid, p2Pawn);
 
         // Sets up display
-        qrDisplay view = new qrDisplay('A', 'B'); // or whatever chars you like
+        // qrDisplay view = new qrDisplay('A', 'B'); // or whatever chars you like
+        qrDisplay view = new qrDisplay(cfg.getPlayer(0), cfg.getPlayer(1));
         System.out.println(view.display(game));
 
 

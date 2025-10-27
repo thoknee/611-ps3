@@ -1,11 +1,16 @@
 public class qrDisplay implements Display<qrGame> {
 
-    private final char p1Char;
-    private final char p2Char;
+    private final Player p1;
+    private final Player p2;
+    
+    // ANSI colors
+    private static final String RESET = "\u001B[0m";
+    private static final String RED = "\u001B[31m";
+    private static final String BLUE = "\u001B[34m";
 
-    public qrDisplay(char p1Char, char p2Char) {
-        this.p1Char = p1Char;
-        this.p2Char = p2Char;
+    public qrDisplay(Player p1, Player p2) {
+        this.p1 = p1;
+        this.p2 = p2;
     }
 
     public String display(qrGame game) {
@@ -40,9 +45,12 @@ public class qrDisplay implements Display<qrGame> {
             for (int c = 0; c < N; c++) {
                 Piece piece = cells.getPiece(r, c);
                 if (piece instanceof qrPlayerPiece) {
+                    // qrPlayerPiece qp = (qrPlayerPiece) piece;
+                    // char ch = (qp.player() == qrPlayerPiece.Player.P1) ? p1Char : p2Char;
                     qrPlayerPiece qp = (qrPlayerPiece) piece;
-                    char ch = (qp.player() == qrPlayerPiece.Player.P1) ? p1Char : p2Char;
-                    grid[2*r][2*c] = ch;
+                    String name = qp.getName(); 
+                    char ch = Character.toUpperCase(name.charAt(0));
+                    grid[2 * r][2 * c] = ch;
                 }
             }
         }
@@ -74,28 +82,56 @@ public class qrDisplay implements Display<qrGame> {
         }
 
 
-        StringBuilder sb = new StringBuilder((G + 4) * (G + 4));
+        StringBuilder sb = new StringBuilder((G + 6) * (G + 6));
 
 
-        sb.append("   ");
-        for (int C = 0; C < G; C++) sb.append(C % 10);
-        sb.append('\n');
+        sb.append("    ");
+        for (int c = 0; c < N; c++) sb.append(RED).append(c).append(" ").append(RESET);
+        sb.append("\n");
+        sb.append("    ");
+        for (int c = 0; c < N - 1; c++) sb.append(BLUE).append(" ").append(c).append(RESET);
+        sb.append("\n");
+
+        // draw rows
+        char p1Initial = Character.toUpperCase(p1.getName().charAt(0));
+        char p2Initial = Character.toUpperCase(p2.getName().charAt(0));
 
         for (int R = 0; R < G; R++) {
-            sb.append(String.format("%2d ", R));
+            // row labels for player/wall lines
+            if (R % 2 == 0)
+                sb.append(RED).append(String.format("%2d ", R / 2)).append(RESET);
+            else
+                sb.append(BLUE).append(String.format("%2d ", R / 2)).append(RESET);
+
+            sb.append(" ");
             for (int C = 0; C < G; C++) {
                 char ch = grid[R][C];
-
-                if (ch == ' ' && (R % 2 == 0) && (C % 2 == 0)) ch = '.';
-                sb.append(ch);
+                // colorize selectively
+                if (ch == '|')
+                    sb.append(BLUE).append(ch).append(RESET);
+                else if (ch == '-')
+                    sb.append(BLUE).append(ch).append(RESET);
+                else if (ch == p1Initial || ch == p2Initial)
+                    sb.append(RED).append(ch).append(RESET);
+                else
+                    sb.append(ch);
             }
-            sb.append(' ').append(String.format("%2d", R)).append('\n'); 
+
+            // row label mirrored at right side
+            if (R % 2 == 0)
+                sb.append(" ").append(RED).append(String.format("%2d", R / 2)).append(RESET);
+            else
+                sb.append(" ").append(BLUE).append(String.format("%2d", R / 2)).append(RESET);
+            sb.append("\n");
         }
 
-
-        sb.append("   ");
-        for (int C = 0; C < G; C++) sb.append(C % 10);
-        sb.append('\n');
+        // footer labels (same as header)
+        sb.append("    ");
+        for (int c = 0; c < N; c++) sb.append(RED).append(c).append(" ").append(RESET);
+        sb.append("\n");
+        sb.append("    ");
+        for (int c = 0; c < N - 1; c++) sb.append(BLUE).append(" ").append(c).append(RESET);
+        sb.append("\n");
 
         return sb.toString();
     }
